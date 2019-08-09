@@ -15,7 +15,7 @@ green=`tput setaf 2; tput bold`
 reset=`tput sgr0`
 
 crtsh(){
-	~/massdns/scripts/ct.py "$domain" | ~/massdns/bin/massdns -r ~/massdns/lists/resolvers.txt -t A -q -o S -w ./crtsh.tmp
+	~/massdns/scripts/ct.py "$domain" 2>/dev/null | ~/massdns/bin/massdns -r ~/massdns/lists/resolvers.txt -t A -q -o S -w ./crtsh.tmp
 }
 
 sublister(){
@@ -35,12 +35,13 @@ amass(){
 }
 
 cname(){
-	cat ./enum.tmp | awk '{print $3}' | sort -u | while read line; do
-		wildcard=$(cat ./enum.tmp | grep -m 1 "$line")
+	cat ./massdns.tmp crtsh.tmp >> ./cname.tmp
+	cat ./cname.tmp | awk '{print $3}' | sort -u | while read line; do
+		wildcard=$(cat ./cname.tmp | grep -m 1 "$line")
         	echo "$wildcard" >> ./clean.tmp
 	done
 
-	cat ./clean.tmp | grep "CNAME" >> ./$domain.cnames.txt > /dev/null
+	cat ./clean.tmp | grep "CNAME" >> ./$domain.cnames.txt
 	cat ./$domain.cnames.txt | sort -u | while read line; do
 		hostrec=$(echo "$line" | awk '{print $1}')
 		if [[ $(host $hostrec | grep NXDOMAIN) != "" ]]
@@ -52,13 +53,13 @@ cname(){
 		fi
 	done
 
-	sleep 5
+	sleep 3
 }
 
 # Its in that place where I put that thing that time
 save(){
 	echo -e "\n${red}Compiling results...${reset}"
-	cat ./sublister.tmp ./certspotter.tmp ./massdns.tmp ./amass.tmp ./crtsh.tmp | tee -a ./enum.tmp > /dev/null && sleep 1
+	cat ./sublister.tmp ./certspotter.tmp ./amass.tmp | tee -a ./enum.tmp > /dev/null && sleep 1
 	echo -e "${green}Complete."
 
 	echo -e "\n${red}Beginning CNAME enumeration...${reset}"
@@ -66,21 +67,14 @@ save(){
 	echo -e "${green}Complete."
 
 	echo -e "\n${red}Cleaning up...${reset}"
-	cat ./enum.tmp | awk '{print $1}' | while read line; do
+	cat ./clean.tmp | awk '{print $1}' | while read line; do
 		x="$line"
-		echo "${x%?}" | tee -a ./final.tmp > /dev/null
+		echo "${x%?}" | tee -a ./enum.tmp > /dev/null
 	done
 
-	cat ./final.tmp | sort -u | tee -a $outputfile > /dev/null && sleep 1
+	cat ./enum.tmp | sort -u | tee -a $outputfile > /dev/null && sleep 1
 
-	rm ./massdns.tmp
-	rm ./amass.tmp
-	rm ./sublister.tmp
-	rm ./certspotter.tmp
-	rm ./crtsh.tmp
-	rm ./clean.tmp
-	rm ./enum.tmp
-	rm ./final.tmp
+	rm ./massdns.tmp && rm ./amass.tmp && rm ./sublister.tmp && rm ./certspotter.tmp && rm ./crtsh.tmp && rm ./clean.tmp && rm ./enum.tmp
 
 	count=$(wc -l $outputfile | awk '{ print $1 }')
 	echo -e "\n${green}Enumeration Complete:" $count "unique subdomains found! Happy Hunting!${reset}"
@@ -133,7 +127,6 @@ touch ./sublister.tmp
 touch ./amass.tmp
 touch ./massdns.tmp
 touch ./enum.tmp
-touch ./final.tmp
 
 # target
 echo -e "\n${red}Target:" $domain "${reset}"
@@ -152,7 +145,7 @@ echo -e "${green}Complete:" $count "subdomains found.${reset}"
 if [ "$crt" ]
 then
         echo -e "\n${red}Beginning crt.sh enumeration...${reset}"
-        crtsh | tac > /dev/null 2>&1 && count=$(wc -l ./crtsh.tmp | awk '{ print $1 }')
+        crtsh && count=$(wc -l ./crtsh.tmp | awk '{ print $1 }')
         echo -e "${green}Complete:" $count "subdomains found.${reset}"
 fi
 
