@@ -15,7 +15,7 @@ green=`tput setaf 2; tput bold`
 reset=`tput sgr0`
 
 crtsh(){
-	~/massdns/scripts/ct.py "$domain" 2>/dev/null | ~/massdns/bin/massdns -r ~/massdns/lists/resolvers.txt -t A -q -o S -w ./crtsh.tmp
+	~/massdns/scripts/ct.py "$domain" 2>/dev/null > ./temp && cat ./temp | ~/massdns/bin/massdns -r ~/massdns/lists/resolvers.txt -t A -q -o S -w ./crtsh.tmp
 }
 
 sublister(){
@@ -27,7 +27,7 @@ certspotter(){
 }
 
 mass(){
-	~/massdns/scripts/subbrute.py ~/tools/all.txt "$domain" | ~/massdns/bin/massdns -r ~/massdns/lists/resolvers.txt -t A -q -o S -w ./massdns.tmp
+	~/massdns/scripts/subbrute.py ~/SecLists/Discovery/DNS/dns-Jhaddix.txt "$domain" | ~/massdns/bin/massdns -r ~/massdns/lists/resolvers.txt -t A -q -o S -w ./massdns.tmp
 }
 
 amass(){
@@ -46,10 +46,8 @@ cname(){
 		hostrec=$(echo "$line" | awk '{print $1}')
 		if [[ $(host $hostrec | grep NXDOMAIN) != "" ]]
 		then
-			echo -e "${green}Check the following domain for NS takeover:  $line ${reset}"
+			echo -e "${green}Check the following domain for NS takeover:  $line ${reset}\n"
 			echo "$line" >> ./$domain.takeovers.txt
-		else
-			echo -ne "${red}Reticulating splines...${reset}"
 		fi
 	done
 
@@ -74,7 +72,7 @@ save(){
 
 	cat ./enum.tmp | sort -u | tee -a $outputfile > /dev/null && sleep 1
 
-	rm ./massdns.tmp && rm ./amass.tmp && rm ./sublister.tmp && rm ./certspotter.tmp && rm ./crtsh.tmp && rm ./clean.tmp && rm ./enum.tmp
+	rm ./massdns.tmp && rm ./amass.tmp && rm ./sublister.tmp && rm ./certspotter.tmp && rm ./crtsh.tmp && rm ./clean.tmp && rm ./enum.tmp && rm ./temp && rm ./cname.tmp
 
 	count=$(wc -l $outputfile | awk '{ print $1 }')
 	echo -e "\n${green}Enumeration Complete:" $count "unique subdomains found! Happy Hunting!${reset}"
@@ -127,6 +125,9 @@ touch ./sublister.tmp
 touch ./amass.tmp
 touch ./massdns.tmp
 touch ./enum.tmp
+touch ./cname.tmp
+touch ./clean.tmp
+touch ./temp
 
 # target
 echo -e "\n${red}Target:" $domain "${reset}"
@@ -145,7 +146,7 @@ echo -e "${green}Complete:" $count "subdomains found.${reset}"
 if [ "$crt" ]
 then
         echo -e "\n${red}Beginning crt.sh enumeration...${reset}"
-        crtsh && count=$(wc -l ./crtsh.tmp | awk '{ print $1 }')
+        crtsh > /dev/null 2>&1 && count=$(wc -l ./crtsh.tmp | awk '{ print $1 }')
         echo -e "${green}Complete:" $count "subdomains found.${reset}"
 fi
 
