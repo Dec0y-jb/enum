@@ -12,7 +12,7 @@ Credits to the following projects and their contributors:
 ![Alt text](https://github.com/Dec0y-jb/enum/blob/master/enum.png?raw=true)
 
 # Dependencies
-In order to use ENUM, you can use the current releases of the tools listed above which are included, or you can modify the path variables as shown below. Please note that the default binary for 'Amass' is the amd64 version; Please point to the i386 version if necessary.
+All dependencies are included with ENUM (aside from python). You can use the current releases of the tools listed above which are included, or you can modify the path variables as shown below. Please note that the default binary for 'Amass' is the amd64 version; Please point to the i386 version if necessary (not included).
 
 ### Path variables in 'enum.sh':
 ```
