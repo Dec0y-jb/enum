@@ -1,4 +1,4 @@
-# enum
+# ENUM
 Subdomain Enumeration from Multiple Sources
 
 ![Alt text](https://github.com/Dec0y-jb/enum/blob/master/enum.png?raw=true)
