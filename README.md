@@ -30,3 +30,5 @@ amasspath=$enumpath/amass_v3.0.27_linux_amd64
 ### Todo
 - [ ] Accept domains from a file
 - [ ] Add exclusion arguments
+- [ ] Add loot folders with timestamps
+- [ ] Prepend $domain to temp files to avoid unintended combining of temp files
