@@ -1,12 +1,13 @@
 #!/bin/bash
 
-# Most of this script was pulled from Lazyrecon (creds to Nahamsec)
+# A lot of this script was pulled from Lazyrecon (creds to Nahamsec)
 # Creds to Patrick Gillespie for the logo (awesome ASCII Art Generator) - http://patorjk.com/software/taag/
+# Creds to Amass, MassDNS, Sublist3r, and SecLists contribuitors and maintainers. Thanks for all your hard work!
 # This will enumerate subdomains, and check CNAMES for potential takeovers.
 #
-# There is no right or wrong. There's only fun and boring.
-#
 # Todo: Add loot folders with timestamps
+#	Accept domains from a file
+#	Add exclusion arguments
 #
 # Decoy
 
