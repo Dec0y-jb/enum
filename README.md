@@ -9,6 +9,10 @@ Credits to the following projects and their contributors:
 - https://github.com/aboul3la/Sublist3r
 - https://github.com/danielmiessler/SecLists
 
+### Usage
+```
+./enum.sh -d "example.com" -o "outputfile.txt"
+```
 ![Alt text](https://github.com/Dec0y-jb/enum/blob/master/enum.png?raw=true)
 
 # Dependencies
@@ -22,3 +26,7 @@ masspath=$enumpath/massdns
 sublisterpath=$enumpath/Sublist3r
 amasspath=$enumpath/amass_v3.0.27_linux_amd64
 ```
+
+### Todo
+- [ ] Accept domains from a file
+- [ ] Add exclusion arguments
