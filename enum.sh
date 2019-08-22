@@ -11,15 +11,23 @@
 # Decoy
 
 # path definitions
-masspath=~/massdns
-sublisterpath=~/tools/Sublist3r
-seclistspath=~/SecLists
-amasspath=~/amass_v3.0.27_linux_amd64
+enumpath="${0%/*}"
+masspath=$enumpath/massdns
+sublisterpath=$enumpath/Sublist3r
+amasspath=$enumpath/amass_v3.0.27_linux_amd64
 
 # color definitions
 red=`tput setaf 1; tput bold`
 green=`tput setaf 2; tput bold`
 reset=`tput sgr0`
+
+progress(){
+	while kill -0 $pid 2>/dev/null
+	do
+		echo -n "."
+		sleep 1
+	done
+}
 
 sublister(){
 	python "$sublisterpath"/sublist3r.py -d "$domain" -t 10 -v -o ./sublister.tmp
@@ -35,7 +43,7 @@ crtsh(){
 
 
 mass(){
-	"$masspath"/scripts/subbrute.py "$seclistspath"/Discovery/DNS/dns-Jhaddix.txt "$domain" | "$masspath"/bin/massdns -r "$masspath"/lists/resolvers.txt -t A -q -o S -w ./massdns.tmp
+	"$masspath"/scripts/subbrute.py "$enumpath"/enum.txt "$domain" | "$masspath"/bin/massdns -r "$masspath"/lists/resolvers.txt -t A -q -o S -w ./massdns.tmp 2>/dev/null
 }
 
 amass(){
@@ -118,7 +126,7 @@ shift $((OPTIND -1))
 # check for domain
 if [ -z "$domain" ]
 then
-        echo "Usage: ./enum.sh [-d domain] [-o output file] [-c include crtsh]"
+        echo "Usage: ./enum.sh [-d domain] [-o output file]"
         exit 1
 fi
 
@@ -139,29 +147,49 @@ touch ./temp
 echo -e "\n${red}Target:" $domain "${reset}"
 
 # sublist3r
-echo -e "\n${red}[*] Beginning sublist3r enumeration...${reset}"
-sublister > /dev/null 2>&1 && count=$(wc -l ./sublister.tmp | awk '{ print $1 }')
-echo -e "${green}[*] Complete:" $count "subdomains found.${reset}"
+sublister > /dev/null 2>&1 &
+pid=$!
+echo -ne "\n${red}[*] Beginning sublist3r enumeration..."
+progress
+count=$(wc -l ./sublister.tmp | awk '{ print $1 }')
+echo -e "${green}Complete!"
+echo -e "[*]" $count "subdomains found.${reset}"
 
 # certspotter
-echo -e "${red}[*] Beginning certspotter enumeration...${reset}"
-certspotter > /dev/null 2>&1 && count=$(wc -l ./certspotter.tmp | awk '{ print $1 }')
-echo -e "${green}[*] Complete:" $count "subdomains found.${reset}"
+certspotter > /dev/null 2>&1 &
+pid=$!
+echo -ne "${red}[*] Beginning certspotter enumeration..."
+progress
+count=$(wc -l ./certspotter.tmp | awk '{ print $1 }')
+echo -e "${green}Complete!"
+echo -e "[*]" $count "subdomains found.${reset}"
 
 #crt.sh
-echo -e "${red}[*] Beginning crt.sh enumeration...${reset}"
-crtsh > /dev/null 2>&1 && count=$(wc -l ./crtsh.tmp | awk '{ print $1 }')
-echo -e "${green}[*] Complete:" $count "subdomains found.${reset}"
+crtsh > /dev/null 2>&1 &
+pid=$!
+echo -ne "${red}[*] Beginning crt.sh enumeration..."
+progress
+count=$(wc -l ./crtsh.tmp | awk '{ print $1 }')
+echo -e "${green}Complete!"
+echo -e "[*]" $count "subdomains found.${reset}"
 
 # massdns
-echo -e "${red}[*] Beginning massdns enumeration...${reset}"
-mass > /dev/null 2>&1 && count=$(wc -l ./massdns.tmp | awk '{ print $1 }')
-echo -e "${green}[*] Complete:" $count "subdomains found.${reset}"
+mass > /dev/null 2>&1 &
+pid=$!
+echo -ne "${red}[*] Beginning massdns enumeration..."
+progress
+count=$(wc -l ./massdns.tmp | awk '{ print $1 }')
+echo -e "${green}Complete!"
+echo -e "[*]" $count "subdomains found.${reset}"
 
 #amass
-echo -e "${red}[*] Beginning amass enumeration...${reset}"
-amass > /dev/null 2>&1 && count=$(wc -l ./amass.tmp | awk '{ print $1 }')
-echo -e "${green}[*] Complete:" $count "subdomains found.${reset}"
+amass > /dev/null 2>&1 &
+pid=$!
+echo -ne "${red}[*] Beginning amass enumeration..."
+progress
+count=$(wc -l ./amass.tmp | awk '{ print $1 }')
+echo -e "${green}Complete!"
+echo -e "[*]" $count "subdomains found.${reset}"
 
 # save loot
 save
