@@ -73,15 +73,15 @@ cname(){
 
 # Its in that place where I put that thing that time
 save(){
-	echo -e "${red}[*] Compiling results...${reset}"
+	echo -e "\n${red}[*] Compiling results...${reset}"
 	cat ./sublister.tmp ./certspotter.tmp ./amass.tmp | tee -a ./enum.tmp > /dev/null && sleep 1
 	echo -e "${green}[*] Complete."
 
-	echo -e "${red}[*] Beginning CNAME enumeration...${reset}"
+	echo -e "\n${red}[*] Beginning CNAME enumeration...${reset}"
 	cname
 	echo -e "${green}[*] Complete."
 
-	echo -e "${red}[*] Cleaning up...${reset}"
+	echo -e "\n${red}[*] Cleaning up...${reset}"
 	cat ./clean.tmp | awk '{print $1}' | while read line; do
 		x="$line"
 		echo "${x%?}" | tee -a ./enum.tmp > /dev/null
@@ -159,7 +159,7 @@ echo -e "[*]" $count "subdomains found.${reset}"
 # certspotter
 certspotter > /dev/null 2>&1 &
 pid=$!
-echo -ne "${red}[*] Beginning certspotter enumeration..."
+echo -ne "\n${red}[*] Beginning certspotter enumeration..."
 progress
 count=$(wc -l ./certspotter.tmp | awk '{ print $1 }')
 echo -e "${green}Complete!"
@@ -168,7 +168,7 @@ echo -e "[*]" $count "subdomains found.${reset}"
 #crt.sh
 crtsh > /dev/null 2>&1 &
 pid=$!
-echo -ne "${red}[*] Beginning crt.sh enumeration..."
+echo -ne "\n${red}[*] Beginning crt.sh enumeration..."
 progress
 count=$(wc -l ./crtsh.tmp | awk '{ print $1 }')
 echo -e "${green}Complete!"
@@ -177,7 +177,7 @@ echo -e "[*]" $count "subdomains found.${reset}"
 # massdns
 mass > /dev/null 2>&1 &
 pid=$!
-echo -ne "${red}[*] Beginning massdns enumeration..."
+echo -ne "\n${red}[*] Beginning massdns enumeration..."
 progress
 count=$(wc -l ./massdns.tmp | awk '{ print $1 }')
 echo -e "${green}Complete!"
@@ -186,7 +186,7 @@ echo -e "[*]" $count "subdomains found.${reset}"
 #amass
 amass > /dev/null 2>&1 &
 pid=$!
-echo -ne "${red}[*] Beginning amass enumeration..."
+echo -ne "\n${red}[*] Beginning amass enumeration..."
 progress
 count=$(wc -l ./amass.tmp | awk '{ print $1 }')
 echo -e "${green}Complete!"
