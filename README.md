@@ -24,7 +24,7 @@ All dependencies are included with ENUM (aside from python). You can use the cur
 enumpath="${0%/*}"
 masspath=$enumpath/massdns
 sublisterpath=$enumpath/Sublist3r
-amasspath=$enumpath/amass_v3.0.27_linux_amd64
+amasspath=$enumpath/amass_v3.1.6_linux_amd64
 ```
 
 ### Todo
