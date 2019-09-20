@@ -22,7 +22,7 @@ red=`tput setaf 1; tput bold`
 green=`tput setaf 2; tput bold`
 reset=`tput sgr0`
 
-progress(){
+function progress(){
 	while kill -0 $pid 2>/dev/null
 	do
 		echo -n "."
@@ -30,28 +30,28 @@ progress(){
 	done
 }
 
-sublister(){
+function sublister(){
 	python "$sublisterpath"/sublist3r.py -d "$domain" -t 10 -v -o ./sublister.tmp
 }
 
-certspotter(){
+function certspotter(){
 	curl -s https://certspotter.com/api/v0/certs\?domain\="$domain" | jq '.[].dns_names[]' | sed 's/\"//g' | sed 's/\*\.//g' | sort -u | grep "$domain" >> ./certspotter.tmp
 }
 
-crtsh(){
-        "$masspath"/scripts/ct.py "$domain" 2>/dev/null > ./temp && cat ./temp | "$masspath"/bin/massdns -r "$masspath"/lists/resolvers.txt -t A -q -o S -w ./crtsh.tmp
+function crtsh(){
+        python "$masspath"/scripts/ct.py "$domain" 2>/dev/null > ./temp && cat ./temp | "$masspath"/bin/massdns -r "$masspath"/lists/resolvers.txt -t A -q -o S -w ./crtsh.tmp
 }
 
 
-mass(){
-	"$masspath"/scripts/subbrute.py "$enumpath"/enum.txt "$domain" | "$masspath"/bin/massdns -r "$masspath"/lists/resolvers.txt -t A -q -o S -w ./massdns.tmp 2>/dev/null
+function mass(){
+	python "$masspath"/scripts/subbrute.py "$enumpath"/enum.txt "$domain" | "$masspath"/bin/massdns -r "$masspath"/lists/resolvers.txt -t A -q -o S -w ./massdns.tmp 2>/dev/null
 }
 
-amass(){
+function amass(){
 	"$amasspath"/amass enum -passive -d "$domain" -o ./amass.tmp
 }
 
-cname(){
+function cname(){
 	cat ./massdns.tmp crtsh.tmp >> ./cname.tmp
 	cat ./cname.tmp | awk '{print $3}' | sort -u | while read line; do
 		wildcard=$(cat ./cname.tmp | grep -m 1 "$line")
@@ -72,7 +72,7 @@ cname(){
 }
 
 # Its in that place where I put that thing that time
-save(){
+function save(){
 	echo -e "\n${red}[*] Compiling results...${reset}"
 	cat ./sublister.tmp ./certspotter.tmp ./amass.tmp | tee -a ./enum.tmp > /dev/null && sleep 1
 	echo -e "${green}[*] Complete."
@@ -95,7 +95,7 @@ save(){
 	echo -e "\n${green}[*] Enumeration Complete:" $count "unique subdomains found! Happy Hunting!${reset}"
 }
 
-logo(){
+function logo(){
 echo "${red}"
 echo -e "\n"
 echo -e " (\`-')  _<-. (\`-')_            <-. (\`-')  "
