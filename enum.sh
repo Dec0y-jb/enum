@@ -15,7 +15,7 @@
 enumpath="${0%/*}"
 masspath=$enumpath/massdns
 sublisterpath=$enumpath/Sublist3r
-amasspath=$enumpath/amass_v3.0.27_linux_amd64
+amasspath=$enumpath/amass_v3.1.6_linux_amd64
 
 # color definitions
 red=`tput setaf 1; tput bold`
@@ -35,7 +35,7 @@ function sublister(){
 }
 
 function certspotter(){
-	curl -s https://certspotter.com/api/v0/certs\?domain\="$domain" | jq '.[].dns_names[]' | sed 's/\"//g' | sed 's/\*\.//g' | sort -u | grep "$domain" >> ./certspotter.tmp
+	curl -s -H "Authorization: Bearer $key" https://certspotter.com/api/v0/certs\?domain\="$domain" | jq '.[].dns_names[]' | sed 's/\"//g' | sed 's/\*\.//g' | sort -u | grep "$domain" >> ./certspotter.tmp
 }
 
 function crtsh(){
@@ -111,14 +111,16 @@ echo "${reset}"
 }
 
 # get options
-while getopts ":d:o:c" opt; do
+while getopts ":d:o:k:" opt; do
         case ${opt} in
                 d )
                         domain=$OPTARG ;;
                 o )
                         outputfile=$OPTARG ;;
+		k )
+			key=$OPTARG ;;
                 \? )
-                        echo "Usage: ./enum.sh [-d domain] [-o output file] [-c include crtsh]"
+                        echo "Usage: ./enum.sh [-d domain] [-o output file] [-k certspotter api key]"
                         exit 1 ;;
         esac
 done
@@ -127,7 +129,7 @@ shift $((OPTIND -1))
 # check for domain
 if [ -z "$domain" ]
 then
-        echo "Usage: ./enum.sh [-d domain] [-o output file]"
+        echo "Usage: ./enum.sh [-d domain] [-o output file] [-k certspotter api key]"
         exit 1
 fi
 
@@ -157,13 +159,16 @@ echo -e "${green}Complete!"
 echo -e "[*]" $count "subdomains found.${reset}"
 
 # certspotter
-certspotter > /dev/null 2>&1 &
-pid=$!
-echo -ne "\n${red}[*] Beginning certspotter enumeration..."
-progress
-count=$(wc -l ./certspotter.tmp | awk '{ print $1 }')
-echo -e "${green}Complete!"
-echo -e "[*]" $count "subdomains found.${reset}"
+if [ "$key" ]
+then
+	certspotter > /dev/null 2>&1 &
+	pid=$!
+	echo -ne "\n${red}[*] Beginning certspotter enumeration..."
+	progress
+	count=$(wc -l ./certspotter.tmp | awk '{ print $1 }')
+	echo -e "${green}Complete!"
+	echo -e "[*]" $count "subdomains found.${reset}"
+fi
 
 #crt.sh
 crtsh > /dev/null 2>&1 &
