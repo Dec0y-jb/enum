@@ -39,12 +39,12 @@ function certspotter(){
 }
 
 function crtsh(){
-        python "$masspath"/scripts/ct.py "$domain" 2>/dev/null > ./temp && cat ./temp | "$masspath"/bin/massdns -r "$masspath"/lists/resolvers.txt -t A -q -o S -w ./crtsh.tmp
+        python3 "$masspath"/scripts/ct.py "$domain" 2>/dev/null > ./temp && cat ./temp | "$masspath"/bin/massdns -r "$masspath"/lists/resolvers.txt -t A -q -o S -w ./crtsh.tmp
 }
 
 
 function mass(){
-	python "$masspath"/scripts/subbrute.py "$enumpath"/enum.txt "$domain" | "$masspath"/bin/massdns -r "$masspath"/lists/resolvers.txt -t A -q -o S -w ./massdns.tmp 2>/dev/null
+	python3 "$masspath"/scripts/subbrute.py "$enumpath"/enum.txt "$domain" | "$masspath"/bin/massdns -r "$masspath"/lists/resolvers.txt -t A -q -o S -w ./massdns.tmp 2>/dev/null
 }
 
 function amass(){
